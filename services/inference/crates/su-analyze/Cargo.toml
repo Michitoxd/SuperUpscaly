@@ -1,0 +1,11 @@
+[package]
+name = "su-analyze"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Analisis previo al escalado: ruido, artefactos de compresion y tipo de contenido"
+
+[dependencies]
+su-core.workspace = true
+su-imageio.workspace = true

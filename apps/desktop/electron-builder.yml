@@ -1,0 +1,130 @@
+# Configuracion de empaquetado.
+#
+# Se ejecuta desde `apps/desktop`, asi que todas las rutas son relativas a ese
+# directorio.
+
+appId: io.superupscaly.app
+productName: SuperUpscaly
+copyright: Copyright (c) 2026 SuperUpscaly contributors
+
+directories:
+  output: ../../release
+  buildResources: resources
+
+# Dentro del asar solo va el proceso principal y el preload. El renderer se sirve
+# desde el esquema `app://` y el sidecar se ejecuta como proceso aparte, asi que
+# ninguno de los dos puede vivir dentro del archivo.
+files:
+  - dist/**/*
+  - package.json
+  - '!**/*.map'
+
+extraResources:
+  # Export estatico de Next. Electron lo sirve desde `app://superupscaly/`.
+  - from: ../renderer/out
+    to: renderer
+    filter:
+      - '**/*'
+  # Binario del sidecar por plataforma y arquitectura. Un instalador de macOS
+  # puede ser universal, asi que la separacion por arquitectura es necesaria.
+  - from: resources/bin
+    to: bin
+    filter:
+      - '**/*'
+
+asar: true
+
+# El binario del sidecar se ejecuta, y un ejecutable no puede lanzarse desde
+# dentro del asar.
+asarUnpack:
+  - resources/bin/**
+
+# --- Windows ---------------------------------------------------------------
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+  icon: resources/icons/icon.ico
+  # Firma de codigo: sin ella, SmartScreen avisa en la primera ejecucion. Se
+  # configura con las variables de entorno del certificado.
+  # certificateFile / certificatePassword / signtoolOptions
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: SuperUpscaly
+
+# --- macOS -----------------------------------------------------------------
+
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+    - target: zip
+      arch: [x64, arm64]
+  category: public.app-category.graphics-design
+  icon: resources/icons/icon.icns
+  # Endurecimiento obligatorio para notarizar. El sidecar y las bibliotecas de
+  # ONNX Runtime se firman con los mismos entitlements: sin eso, macOS mata el
+  # proceso hijo al arrancar.
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: resources/entitlements.mac.plist
+  entitlementsInherit: resources/entitlements.mac.plist
+  # notarize: true  # requiere APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD y APPLE_TEAM_ID
+
+dmg:
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
+
+# --- Linux -----------------------------------------------------------------
+
+linux:
+  target:
+    - target: AppImage
+      arch: [x64]
+    - target: deb
+      arch: [x64]
+  category: Graphics
+  icon: resources/icons
+  synopsis: Upscaling de imagenes con IA
+  description: |
+    Escalado de imagenes con redes neuronales, en local y con aceleracion por
+    hardware. Dos modos: fotografias y dibujo/anime.
+  desktop:
+    entry:
+      Name: SuperUpscaly
+      Comment: Upscaling de imagenes con IA
+      Categories: Graphics;Photography;
+      Keywords: upscale;imagen;foto;anime;ia;
+
+deb:
+  depends:
+    - libgtk-3-0
+    - libnotify4
+    - libnss3
+    - libxss1
+    - libxtst6
+    - xdg-utils
+    - libatspi2.0-0
+    - libsecret-1-0
+  # Electron necesita `chrome-sandbox` con SUID root. El paquete lo aplica al
+  # instalar; sin esto, el binario no arranca en muchas distribuciones.
+  afterInstall: resources/linux/after-install.sh
+
+appImage:
+  # No se activa `--no-sandbox` por defecto: desactivar el sandbox de Chromium
+  # para todo el mundo porque una minoria tenga el SUID mal puesto es un mal
+  # intercambio. Se documenta en la guia de problemas.
+  artifactName: ${productName}-${version}-${arch}.AppImage

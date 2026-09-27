@@ -1,0 +1,34 @@
+[package]
+name = "su-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Interfaz de linea de comandos del sidecar: escalado, diagnostico y servidor"
+
+[[bin]]
+name = "su-cli"
+path = "src/main.rs"
+
+[features]
+default = []
+# Reenvia la feature al crate donde vive la implementacion. El binario es quien
+# la necesita, pero el codigo de ONNX Runtime esta en `su-inference` (ADR-018):
+# sin este puente, `--features onnx` no se puede activar desde `su-cli` y la
+# unica forma de compilar el backend real seria compilar la biblioteca suelta.
+onnx = ["su-inference/onnx"]
+
+[dependencies]
+su-core.workspace = true
+su-tiling.workspace = true
+su-models.workspace = true
+su-hardware.workspace = true
+su-inference.workspace = true
+su-jobs.workspace = true
+su-server.workspace = true
+su-telemetry.workspace = true
+
+serde_json.workspace = true
+tokio = { workspace = true }
+clap = { workspace = true }
+tracing.workspace = true

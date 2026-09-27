@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Entitlements para el endurecimiento (hardened runtime) de macOS.
+
+    Se aplican tanto a la aplicacion como al binario del sidecar y a las
+    bibliotecas de ONNX Runtime, porque macOS firma cada ejecutable por separado
+    y mata el proceso hijo si sus permisos no son compatibles con los del padre.
+  -->
+
+  <!-- El sidecar se lanza como proceso hijo: sin esto, macOS lo bloquea. -->
+  <key>com.apple.security.cs.allow-jit</key>
+  <true/>
+
+  <!-- Electron y ONNX Runtime cargan bibliotecas en tiempo de ejecucion.
+       Es lo que permite el diseno de "Acceleration Packs": el binario de ORT no
+       esta enlazado al compilar, se carga cuando hace falta. -->
+  <key>com.apple.security.cs.disable-library-validation</key>
+  <true/>
+
+  <!-- Necesario para el motor de JavaScript de V8. -->
+  <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+  <true/>
+
+  <!-- CoreML necesita acceso a los recursos de la GPU y a la memoria compartida
+       para funcionar como execution provider. -->
+  <key>com.apple.security.device.gpu</key>
+  <true/>
+
+  <!-- Lectura y escritura de las imagenes que el usuario elige. En una
+       aplicacion sin sandbox de App Store estos permisos son implicitos, pero
+       se declaran para que la firma sea explicita sobre lo que hace. -->
+  <key>com.apple.security.files.user-selected.read-write</key>
+  <true/>
+</dict>
+</plist>

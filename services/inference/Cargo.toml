@@ -1,0 +1,67 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT"
+repository = "https://github.com/superupscaly/superupscaly"
+description = "Sidecar de inferencia de SuperUpscaly"
+
+[workspace.dependencies]
+# --- crates internos ---
+su-core = { path = "crates/su-core" }
+su-tiling = { path = "crates/su-tiling" }
+su-imageio = { path = "crates/su-imageio" }
+su-models = { path = "crates/su-models" }
+su-hardware = { path = "crates/su-hardware" }
+su-analyze = { path = "crates/su-analyze" }
+su-inference = { path = "crates/su-inference" }
+su-jobs = { path = "crates/su-jobs" }
+su-server = { path = "crates/su-server" }
+su-telemetry = { path = "crates/su-telemetry" }
+
+# --- terceros ---
+# Solo lo que se usa hoy. Cada dependencia declarada se compila aunque no se
+# referencie, asi que no se dejan "por si acaso".
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "sync", "time", "signal", "fs"] }
+axum = { version = "0.7", features = ["ws", "json", "tokio"] }
+
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "bmp", "tiff"] }
+kamadak-exif = "0.5"
+
+sha2 = "0.10"
+clap = { version = "4", features = ["derive"] }
+# `bundled` compila SQLite con el crate: no hace falta tenerlo instalado en el
+# sistema ni depender de la version que traiga cada distribucion.
+rusqlite = { version = "0.40", features = ["bundled"] }
+
+# ONNX Runtime, detras de la feature `onnx` de su-inference.
+#
+# - `load-dynamic`: no enlaza en tiempo de compilacion. El binario de ORT se carga
+#   en tiempo de ejecucion, que es lo que permite empaquetar varios builds y
+#   elegir el EP sin recompilar (ver ADR-012, los "Acceleration Packs").
+# - Las features de EP solo activan los enlaces: el proveedor real se carga en
+#   tiempo de ejecucion. Si la biblioteca no esta, el EP falla al crear la sesion
+#   y `su-hardware` ya lo reporta como no disponible.
+# - No se activa `download-binaries`: ONNX Runtime lo aporta la aplicacion, no el
+#   crate. Sin eso, `cargo build` intentaria descargar cientos de megabytes.
+ort = { version = "2.0.0-rc.13", default-features = false, features = [
+    "load-dynamic",
+    "cuda",
+    "tensorrt",
+    "directml",
+    "coreml",
+] }
+
+# Pendientes para cuando exista codigo que las use:
+#   fast_image_resize -> reescalado con SIMD (hoy se usa imageops)
+#   tower-http + futures-util -> middleware de trazas y utilidades de streaming

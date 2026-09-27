@@ -1,0 +1,24 @@
+{
+  "name": "@superupscaly/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Proceso principal de Electron, preload y gestion de archivos",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "build": "node ../../scripts/build-main.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "package": "electron-builder --config electron-builder.yml",
+    "package:linux": "electron-builder --linux --config electron-builder.yml",
+    "package:win": "electron-builder --win --config electron-builder.yml",
+    "package:mac": "electron-builder --mac --config electron-builder.yml"
+  },
+  "dependencies": {
+    "@superupscaly/shared": "*",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.13",
+    "electron-builder": "^26.0.12",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,317 @@
+{
+  "version": 1,
+  "pipelines": [
+    {
+      "id": "photo:4x",
+      "mode": "photo",
+      "scale": 4,
+      "description": "Fotografia a 4x. Cadena por defecto: denoise si esta degradada, escalado, restauracion facial y enfoque.",
+      "stages": [
+        { "id": "analyze", "op": "analyze" },
+        {
+          "id": "denoise",
+          "op": "model",
+          "model": "scunet-color",
+          "blendFrom": { "path": "analysis.noise", "min": 0.5, "max": 1.0 },
+          "when": {
+            "and": [
+              { "path": "analysis.noise", "op": "gt", "value": 0.35 },
+              { "path": "prefs.denoise", "op": "ne", "value": "off" }
+            ]
+          }
+        },
+        {
+          "id": "upscale",
+          "op": "model",
+          "model": "4x-ultrasharp",
+          "fallbackModel": "realesrgan-x4plus",
+          "tiling": "auto",
+          "scaleOut": 4
+        },
+        {
+          "id": "face",
+          "op": "model",
+          "model": "gfpgan-v1.4",
+          "onlyOnFaces": true,
+          "blend": 1.0,
+          "when": {
+            "and": [
+              { "path": "analysis.faces", "op": "gt", "value": 0 },
+              { "path": "prefs.faceRestore", "op": "ne", "value": "off" }
+            ]
+          }
+        },
+        {
+          "id": "sharpen",
+          "op": "unsharp",
+          "amount": 0.35,
+          "radius": 1.2,
+          "threshold": 0.02,
+          "when": {
+            "and": [
+              { "path": "prefs.sharpen", "truthy": true },
+              { "path": "analysis.blockiness", "op": "lt", "value": 0.25 }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "photo:2x",
+      "mode": "photo",
+      "scale": 2,
+      "description": "Fotografia a 2x. Se escala a 4x y se reduce con Lanczos en 16 bits, que preserva mas detalle que recortar la salida.",
+      "stages": [
+        { "id": "analyze", "op": "analyze" },
+        {
+          "id": "denoise",
+          "op": "model",
+          "model": "scunet-color",
+          "blendFrom": { "path": "analysis.noise", "min": 0.5, "max": 1.0 },
+          "when": {
+            "and": [
+              { "path": "analysis.noise", "op": "gt", "value": 0.35 },
+              { "path": "prefs.denoise", "op": "ne", "value": "off" }
+            ]
+          }
+        },
+        {
+          "id": "upscale",
+          "op": "model",
+          "model": "4x-ultrasharp",
+          "fallbackModel": "realesrgan-x4plus",
+          "tiling": "auto",
+          "scaleOut": 4
+        },
+        {
+          "id": "downscale",
+          "op": "resize",
+          "kernel": "lanczos3",
+          "factor": 0.5
+        },
+        {
+          "id": "face",
+          "op": "model",
+          "model": "gfpgan-v1.4",
+          "onlyOnFaces": true,
+          "blend": 1.0,
+          "when": {
+            "and": [
+              { "path": "analysis.faces", "op": "gt", "value": 0 },
+              { "path": "prefs.faceRestore", "op": "ne", "value": "off" }
+            ]
+          }
+        },
+        {
+          "id": "sharpen",
+          "op": "unsharp",
+          "amount": 0.35,
+          "radius": 1.2,
+          "threshold": 0.02,
+          "when": {
+            "and": [
+              { "path": "prefs.sharpen", "truthy": true },
+              { "path": "analysis.blockiness", "op": "lt", "value": 0.25 }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "photo:8x",
+      "mode": "photo",
+      "scale": 8,
+      "description": "Fotografia a 8x mediante doble pasada de un modelo 4x, con solape duplicado para no acumular costuras.",
+      "stages": [
+        { "id": "analyze", "op": "analyze" },
+        {
+          "id": "denoise",
+          "op": "model",
+          "model": "scunet-color",
+          "blendFrom": { "path": "analysis.noise", "min": 0.5, "max": 1.0 },
+          "when": {
+            "and": [
+              { "path": "analysis.noise", "op": "gt", "value": 0.35 },
+              { "path": "prefs.denoise", "op": "ne", "value": "off" }
+            ]
+          }
+        },
+        {
+          "id": "upscale",
+          "op": "model",
+          "model": "4x-ultrasharp",
+          "fallbackModel": "realesrgan-x4plus",
+          "tiling": "auto",
+          "scaleOut": 4
+        },
+        {
+          "id": "halve",
+          "op": "resize",
+          "kernel": "lanczos3",
+          "factor": 0.5
+        },
+        {
+          "id": "upscale2",
+          "op": "model",
+          "model": "4x-ultrasharp",
+          "fallbackModel": "realesrgan-x4plus",
+          "tiling": "auto",
+          "scaleOut": 4,
+          "overlapBoost": 2
+        },
+        {
+          "id": "face",
+          "op": "model",
+          "model": "gfpgan-v1.4",
+          "onlyOnFaces": true,
+          "blend": 1.0,
+          "when": {
+            "and": [
+              { "path": "analysis.faces", "op": "gt", "value": 0 },
+              { "path": "prefs.faceRestore", "op": "ne", "value": "off" }
+            ]
+          }
+        },
+        {
+          "id": "sharpen",
+          "op": "unsharp",
+          "amount": 0.30,
+          "radius": 1.1,
+          "threshold": 0.02,
+          "when": {
+            "and": [
+              { "path": "prefs.sharpen", "truthy": true },
+              { "path": "analysis.blockiness", "op": "lt", "value": 0.25 }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "illustration:4x",
+      "mode": "illustration",
+      "scale": 4,
+      "description": "Dibujo y anime a 4x. Sin restauracion facial: no aplica. El enfoque es suave para no amplificar el ruido de compresion.",
+      "stages": [
+        { "id": "analyze", "op": "analyze" },
+        {
+          "id": "lineclean",
+          "op": "model",
+          "model": "realesrgan-x4plus-anime-6b",
+          "scaleOut": 1,
+          "blend": 0.7,
+          "when": {
+            "or": [
+              { "path": "analysis.blockiness", "op": "gt", "value": 0.25 },
+              { "path": "analysis.noise", "op": "gt", "value": 0.4 }
+            ]
+          }
+        },
+        {
+          "id": "upscale",
+          "op": "model",
+          "model": "realesrgan-x4plus-anime-6b",
+          "tiling": "auto",
+          "scaleOut": 4
+        },
+        {
+          "id": "sharpen",
+          "op": "unsharp",
+          "amount": 0.18,
+          "radius": 0.8,
+          "threshold": 0.03,
+          "when": { "path": "prefs.sharpen", "truthy": true }
+        }
+      ]
+    },
+    {
+      "id": "illustration:2x",
+      "mode": "illustration",
+      "scale": 2,
+      "description": "Dibujo y anime a 2x con modelo 2x nativo, mas rapido y sin el paso de reduccion.",
+      "stages": [
+        { "id": "analyze", "op": "analyze" },
+        {
+          "id": "lineclean",
+          "op": "model",
+          "model": "realesrgan-x4plus-anime-6b",
+          "scaleOut": 1,
+          "blend": 0.7,
+          "when": {
+            "or": [
+              { "path": "analysis.blockiness", "op": "gt", "value": 0.25 },
+              { "path": "analysis.noise", "op": "gt", "value": 0.4 }
+            ]
+          }
+        },
+        {
+          "id": "upscale",
+          "op": "model",
+          "model": "2x-animesharpv3",
+          "fallbackModel": "realesrgan-x4plus-anime-6b",
+          "tiling": "auto",
+          "scaleOut": 2
+        },
+        {
+          "id": "sharpen",
+          "op": "unsharp",
+          "amount": 0.18,
+          "radius": 0.8,
+          "threshold": 0.03,
+          "when": { "path": "prefs.sharpen", "truthy": true }
+        }
+      ]
+    },
+    {
+      "id": "illustration:8x",
+      "mode": "illustration",
+      "scale": 8,
+      "description": "Dibujo y anime a 8x mediante doble pasada del modelo 4x de anime.",
+      "stages": [
+        { "id": "analyze", "op": "analyze" },
+        {
+          "id": "lineclean",
+          "op": "model",
+          "model": "realesrgan-x4plus-anime-6b",
+          "scaleOut": 1,
+          "blend": 0.7,
+          "when": {
+            "or": [
+              { "path": "analysis.blockiness", "op": "gt", "value": 0.25 },
+              { "path": "analysis.noise", "op": "gt", "value": 0.4 }
+            ]
+          }
+        },
+        {
+          "id": "upscale",
+          "op": "model",
+          "model": "realesrgan-x4plus-anime-6b",
+          "tiling": "auto",
+          "scaleOut": 4
+        },
+        {
+          "id": "halve",
+          "op": "resize",
+          "kernel": "lanczos3",
+          "factor": 0.5
+        },
+        {
+          "id": "upscale2",
+          "op": "model",
+          "model": "realesrgan-x4plus-anime-6b",
+          "tiling": "auto",
+          "scaleOut": 4,
+          "overlapBoost": 2
+        },
+        {
+          "id": "sharpen",
+          "op": "unsharp",
+          "amount": 0.15,
+          "radius": 0.8,
+          "threshold": 0.03,
+          "when": { "path": "prefs.sharpen", "truthy": true }
+        }
+      ]
+    }
+  ]
+}

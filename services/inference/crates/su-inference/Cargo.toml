@@ -1,0 +1,28 @@
+[package]
+name = "su-inference"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Ejecucion de pipelines: backend de inferencia, tiling y degradacion progresiva"
+
+[features]
+default = []
+# ONNX Runtime. Desactivada por defecto para que el resto del sidecar se pueda
+# compilar y testear sin descargar ni enlazar ORT (ver ADR-018).
+#
+# No se activa `ndarray`: la entrada se construye con `(shape, Vec<f32>)` y la
+# salida se lee con `try_extract_tensor`, que devuelve un `&[f32]`. Para pasar
+# tiles de imagen no hace falta nada mas.
+onnx = ["dep:ort"]
+
+[dependencies]
+su-core.workspace = true
+su-tiling.workspace = true
+su-imageio.workspace = true
+su-models.workspace = true
+tracing.workspace = true
+
+ort = { workspace = true, optional = true }
+
+[dev-dependencies]

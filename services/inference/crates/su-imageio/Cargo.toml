@@ -1,0 +1,12 @@
+[package]
+name = "su-imageio"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Entrada y salida de imagen: decodificacion, EXIF, escritura atomica y validacion"
+
+[dependencies]
+su-core.workspace = true
+image.workspace = true
+kamadak-exif.workspace = true

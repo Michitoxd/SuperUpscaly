@@ -1,0 +1,12 @@
+[package]
+name = "su-telemetry"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Logs estructurados con enmascarado del directorio personal"
+
+[dependencies]
+su-core.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true

@@ -1,0 +1,34 @@
+{
+  "name": "superupscaly",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Upscaling de imagenes con aceleracion por hardware (TensorRT / CUDA / DirectML / CoreML / CPU)",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "start": "node scripts/start.mjs",
+    "build": "node scripts/build-main.mjs && npm run build --workspace @superupscaly/renderer",
+    "build:main": "node scripts/build-main.mjs",
+    "build:renderer": "npm run build --workspace @superupscaly/renderer",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test:scripts && npm run test:main",
+    "test:main": "node --test \"apps/desktop/src/main/**/*.test.ts\"",
+    "test:scripts": "node --test scripts/lib/stats.test.mjs",
+    "benchmark": "node scripts/benchmark.mjs",
+    "package": "node scripts/package.mjs",
+    "clean": "node scripts/clean.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "electron": "^44.4.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.3"
+  }
+}

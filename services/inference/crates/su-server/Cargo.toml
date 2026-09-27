@@ -1,0 +1,21 @@
+[package]
+name = "su-server"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "API local del sidecar: HTTP + WebSocket, solo en loopback"
+
+[dependencies]
+su-core.workspace = true
+su-tiling.workspace = true
+su-models.workspace = true
+su-hardware.workspace = true
+su-inference.workspace = true
+su-jobs.workspace = true
+
+serde.workspace = true
+serde_json.workspace = true
+tokio = { workspace = true }
+axum = { workspace = true }
+tracing.workspace = true

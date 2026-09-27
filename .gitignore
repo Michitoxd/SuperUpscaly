@@ -1,0 +1,56 @@
+node_modules/
+dist/
+# La unica excepcion: el paquete ya construido del escritorio se versiona para
+# no perder la ultima compilacion. Cualquier otro dist/ sigue fuera.
+!apps/desktop/dist/
+out/
+.next/
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
+# Rust
+target/
+**/*.rs.bk
+Cargo.lock.orig
+.su-check/
+
+# Artefactos de empaquetado (electron-builder)
+release/
+*.AppImage
+*.deb
+*.rpm
+*.dmg
+*.exe
+*.blockmap
+latest*.yml
+
+logs/
+cache/
+
+# Estado de un arranque en desarrollo con `SU_DATA_DIR` apuntando al repositorio.
+# `jobs.db` SI se versiona a proposito (cambio de politica, sep-2026): es el
+# historial de trabajos y no se puede recrear en otra maquina. Los ficheros
+# auxiliares de SQLite y el registro de calibracion siguen siendo estado local.
+jobs.db-*
+calibration.json
+
+# Runtime de ONNX Runtime. `scripts/package.mjs` lo busca aqui para meterlo en el
+# instalador; son decenas de megabytes que no se versionan (ADR-012).
+runtime/
+
+# Modelos descargados. Los pesos tienen su propia licencia y se bajan bajo
+# demanda; el hash de cada uno lo verifica el motor, no el repositorio.
+models/*.onnx
+!models/.gitkeep
+
+apps/desktop/resources/bin/*
+!apps/desktop/resources/bin/.gitkeep
+
+.env
+.env.local
+*.local
+
+.vscode/*
+!.vscode/extensions.json
+.idea/

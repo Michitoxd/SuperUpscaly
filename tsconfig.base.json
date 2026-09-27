@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    // Los imports relativos llevan la extension explicita (ver `shared/src/index.ts`).
+    // Es una opcion que TypeScript solo admite sin emitir ficheros, y aqui nadie emite:
+    // el proceso principal lo empaqueta esbuild y el renderer, Next.
+    "allowImportingTsExtensions": true,
+    "jsx": "preserve"
+  }
+}

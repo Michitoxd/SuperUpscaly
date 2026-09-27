@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+/* El paquete de UI vive fuera del arbol del renderer y queda detras de un
+   symlink de node_modules, asi que Tailwind no lo descubre solo. */
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";
+@source "../**/*.{ts,tsx}";
+
+/* Paleta oficial. Tailwind v4 expone cada token como `--color-su-*` en :root y
+   genera las utilidades (bg-su-base, text-su-accent, border-su-border...).
+   Es la unica definicion de estos colores en CSS; `packages/shared/src/theme.ts`
+   apunta a estas mismas variables. */
+@theme {
+  --color-su-base: #1E1B2E;
+  --color-su-surface: #2D2640;
+  --color-su-surface-2: #382F52;
+  --color-su-accent: #8B5CF6;
+  --color-su-accent-hover: #A78BFA;
+  --color-su-accent-muted: #6D28D9;
+  --color-su-text: #F3F4F6;
+  --color-su-text-muted: #C4B5FD;
+  --color-su-border: #4C1D95;
+  --color-su-success: #34D399;
+  --color-su-warning: #FBBF24;
+  --color-su-error: #F87171;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-su-base);
+  color: var(--color-su-text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-su-border) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--color-su-border);
+  border: 2px solid var(--color-su-base);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Fondo a cuadros de la comparacion.
+
+   Un PNG con transparencia sobre un fondo liso no deja ver donde acaba la imagen: el
+   blanco del lienzo y el blanco del papel se confunden, y el borde —precisamente lo
+   que se va a mirar— desaparece. Los dos tonos salen de la paleta, uno de ellos el
+   mismo fondo de la aplicacion, para que el cuadro no compita con la imagen. */
+.su-checker {
+  background-color: var(--color-su-base);
+  background-image:
+    linear-gradient(45deg, var(--color-su-surface-2) 25%, transparent 25% 75%, var(--color-su-surface-2) 75%),
+    linear-gradient(45deg, var(--color-su-surface-2) 25%, transparent 25% 75%, var(--color-su-surface-2) 75%);
+  background-position: 0 0, 8px 8px;
+  background-size: 16px 16px;
+}
+
+/* La ventana es una aplicacion, no un documento: arrastrar texto por accidente
+   mientras se sueltan imagenes es un problema real. */
+.su-noselect {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
